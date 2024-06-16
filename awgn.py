@@ -22,4 +22,4 @@ def add_awgn_noise(signal, snr_dB):
     # 添加噪声到原始信号
     noisy_signal=np.array(signal + noise)
     noisy_signal=np.where(noisy_signal<=0.5,0,1)
-    return noisy_signal
+    return list(noisy_signal)
