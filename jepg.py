@@ -52,7 +52,7 @@ def compress(img_data, quality_scale=50):
     pos_in_table = 0;#standard_dc_nrcodes下标
     code_value = 0;#可以理解为standrad_dc_values的下标
     dc_huffman_table = [0] * 16
-
+    # 生成dc哈夫曼编码表
     for i in range(1, 9):
         for j in range(1, standard_dc_nrcodes[i - 1] + 1):
             dc_huffman_table[standard_dc_values[pos_in_table]] = bin(code_value)[2:].rjust(i, '0')#在huffman表的对应位置存储二进制编码，下标是对应的值，如下标4对应“000”、下标3对应“010“，哈夫曼编码的由对应数据在standard_dc_values中的下标得出，如4在该表中下标为0，3在该表中下标为2
@@ -87,7 +87,7 @@ def compress(img_data, quality_scale=50):
     pos_in_table = 0;
     code_value = 0;
     ac_huffman_table = [0] * 256
-
+    # 生成AC哈夫曼表
     for i in range(1, 17):
         for j in range(1, standard_ac_nrcodes[i - 1] + 1):
             ac_huffman_table[standard_ac_values[pos_in_table]] = bin(code_value)[2:].rjust(i, '0')
