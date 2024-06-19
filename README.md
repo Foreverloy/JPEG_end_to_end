@@ -1,2 +1,3 @@
 模拟了图片的端到端传输
-实现了发送端jpeg压缩、crc32编码、卷积编码，接收端Viterbi解码、crc32校验、jpeg解压缩
+实现了发送端jpeg压缩、crc32编码、卷积编码，接收端Viterbi解码、crc32校验、jpeg解压缩，同时把该过程集成到了tcp中
+通过tcp传输图片需要先在一个终端运行tcp_receiver.py,然后再在另一个终端运行tcp_sender.py,前后顺序不能乱
