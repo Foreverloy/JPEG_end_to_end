@@ -30,6 +30,12 @@ def recvall(sock, n):
     return data
 # 接收端函数
 def start_receiver(k: int, packet_size: int):
+    """
+    接收端函数,在接收端完成数据包的解码，卷积解码，CRC校验，数据包的重组
+    k: 卷积编码器约束长度
+    packet_size: 数据包大小
+    return: 接收到的数据流（二进制列表）
+    """
     print("Receiver is running...")
     # 实例化一个(2,1,k)卷积编码器，2 <= k <= 8
     conv = Convolution(k)

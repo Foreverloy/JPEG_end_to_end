@@ -13,6 +13,13 @@ import numpy as np
 
 # 发送端函数
 def start_sender(img_path: str, k: int, packet_size: int, time_out: int = 5):
+    """
+    function: 发送端函数,完成对数据流的拆分，卷积编码，CRC编码，数据包的发送
+    img_path: 图像路径
+    k: 卷积编码器约束长度
+    packet_size: 数据包大小
+    time_out: 超时时间
+    """
     # 等待接收端启动
     time.sleep(1)
     # 创建TCP套接字

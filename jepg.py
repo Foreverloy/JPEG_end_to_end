@@ -1,15 +1,16 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-'''
-jpeg压缩函数
-data:要压缩的灰度图像数据流
-quality_scale控制压缩质量(1-99)，默认为50，值越小图像约清晰
-return:得到压缩后的图像数据，为FFD9开头的jpeg格式字符串
-'''
+
 
 
 def compress(img_data, quality_scale=50):
+    '''
+    jpeg压缩函数
+    img_data:要压缩的灰度图像数据流
+    quality_scale控制压缩质量(1-99)，默认为50，值越小图像约清晰
+    return:得到压缩后的图像数据，为FFD9开头的jpeg格式字符串
+    '''
     # 获取图像数据流宽高
     h, w ,_= img_data.shape
     # 标准亮度量化表
@@ -212,14 +213,15 @@ def compress(img_data, quality_scale=50):
     return res
 
 
-'''
-jpeg解压缩
-img:解压缩的jpeg灰度图像文件
-return:返回解压缩后的图像原数据，为多维数组形式
-'''
+
 
 
 def decompress(img):
+    '''
+    jpeg解压缩
+    img:解压缩的jpeg灰度图像文件
+    return:返回解压缩后的图像原数据，为多维数组形式
+    '''
     # jpeg解码的所有参数都是从编码后的jpeg文件中读取的
     with open(img, 'rb') as f:
         img_data = f.read()
