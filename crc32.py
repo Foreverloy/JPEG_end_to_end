@@ -27,7 +27,6 @@ def crc32(data: list, poly=0xEDB88320, init=0xFFFFFFFF):
 def verify_crc32(data_with_crc: list, poly=0xEDB88320, init=0xFFFFFFFF):
     """
     验证给定数据（包括附加的CRC32值）的完整性。
-
     :param data_with_crc: 包含数据和附加CRC32值的二进制位列表。
     :param poly: CRC多项式，默认为0xEDB88320。
     :param init: CRC初始值，默认为0xFFFFFFFF。

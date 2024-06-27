@@ -1,7 +1,7 @@
 import socket
 from crc32 import verify_crc32, crc32
 from convolutional_coding import Convolution
-from jepg import compress, decompress
+from jpeg import compress, decompress
 from hexString_to_bitList import get_bitList_from_hexString, get_hexString_from_bitList, get_binaryarray_from_bytes
 from awgn import add_awgn_noise
 import base64
@@ -11,16 +11,16 @@ import struct
 import cv2
 
 def recv_message(sock):
-    # Read message length (4 bytes)
+    # 获取每个数据包头部存储数据包长度的四个字节
     raw_msglen = recvall(sock, 4)
     if not raw_msglen:
         return None
-    msglen = struct.unpack('!I', raw_msglen)[0]
-    # Read the message data
+    msglen = struct.unpack('!I', raw_msglen)[0] #将获得的数据包长度转换为整数
+    # 根据数据包长度接收数据包
     return recvall(sock, msglen)
 
 def recvall(sock, n):
-    # Helper function to receive n bytes or return None if EOF is hit
+    # 从套接字接收n字节数据
     data = b''
     while len(data) < n:
         packet = sock.recv(n - len(data))
@@ -63,6 +63,7 @@ def start_receiver(k: int, packet_size: int):
                         # 发送 ACK
                         connection.sendall(b'OK')
                     else:
+                        print("Data is invalid")
                         fault_packet += 1
                         # 发送 NAK
                         connection.sendall(b'NO')
@@ -75,6 +76,7 @@ def start_receiver(k: int, packet_size: int):
         # 数据接收完成后处理数据
         if recv_data:
             print("Fault packet number: ", fault_packet)
+            connection.close()
             return recv_data
 def main():
     k = 3 # 卷积编码器约束长度
@@ -83,21 +85,22 @@ def main():
     # 将接收到的数据流转换为16进制字符串
     recv_data = get_hexString_from_bitList(recv_data)
     # 存储压缩后的图像
-    img_compress_path = './images/img_compress.jpg'
+    img_compress_path = './receive_image/img_compress.jpg'
     with open(img_compress_path, 'wb') as f:
         f.write(base64.b16decode(recv_data.upper()))
     # jpeg解压缩
     img_decompress = decompress(img_compress_path)
     # 原始图像路径,灰度图像
-    img_path = './images/image.bmp'
+    img_path = './sender_image/image.png'
     # 读取原始图像,cv2.imread()默认是用color模式读取的，保持原样读取要加上第二个参数-1,即CV_LOAD_IMAGE_GRAYSCALE
     # 得到图像原数据流
-    img_data = cv2.imread(img_path, -1)
+    img_data = cv2.imread(img_path, -1)[:,:,(2,1,0)]
     # 官方jpeg压缩
-    cv2.imwrite('./images/jpeg_decompress.jpg', img_data)
-    img0 = cv2.imread('./images/jpeg_decompress.jpg', -1)
+    cv2.imwrite('./sender_image/jpeg_decompress.jpg', img_data)
+    # 官方解压缩
+    img0 = cv2.imread('./sender_image/jpeg_decompress.jpg', -1)
     # 读取接收端接收的压缩的图像
-    img1 = cv2.imread('./images/img_compress.jpg', -1)
+    img1 = cv2.imread('./receive_image/img_compress.jpg', -1)
     # 结果展示
     # 子图1，原始图像
     plt.subplot(141)

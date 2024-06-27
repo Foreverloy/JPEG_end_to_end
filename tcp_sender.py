@@ -1,7 +1,7 @@
 import socket
 from crc32 import verify_crc32, crc32
 from convolutional_coding import Convolution
-from jepg import compress, decompress
+from jpeg import compress, decompress
 from hexString_to_bitList import get_bitList_from_hexString, get_hexString_from_bitList,get_bytes_from_binaryarray
 import cv2
 import threading
@@ -35,7 +35,8 @@ def start_sender(img_path: str, k: int, packet_size: int, time_out: int = 5):
 def send_image(sock, img_path, k: int, packet_size: int, timeout):
     print("Sending image...")
     # 读取图像数据
-    img_data = cv2.imread(img_path, -1)
+    # 得到图像原数据流，注意opencv的颜色通道顺序为[B,G,R]
+    img_data = cv2.imread(img_path, -1)[:,:,(2,1,0)]
     # 得到压缩后图像数据
     img_compress = compress(img_data, 50)
     # 得到解压缩后图像数据的二进制列表形式
@@ -79,7 +80,7 @@ def send_image(sock, img_path, k: int, packet_size: int, timeout):
 def main():
     k = 3  # 卷积编码器约束长度
     packet_size = 1024 # 数据包大小（字节）
-    start_sender('./images/image.bmp', k, packet_size)
+    start_sender('./sender_image/image.png', k, packet_size)
 
 if __name__ == "__main__":
     main()
