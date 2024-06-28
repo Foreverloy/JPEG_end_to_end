@@ -269,11 +269,11 @@ def compress(img_data, quality_scale=50):
         for j in range(w // 8):
             block = Y_data[i * 8:(i + 1) * 8, j * 8:(j + 1) * 8]
             result=_doHuffmanEncoding(block,ZigZag,m_YTable,m_Y_DC_Huffman_Table,m_Y_AC_Huffman_Table,result,prev_DC_Y)
-    for i in range(0, h // 2, 8):
-        for j in range(0, w// 2, 8):
-            block = Cb_data[i:i+8, j:j+8]
+    for i in range(h //16):
+        for j in range(w//16):
+            block = Cb_data[i * 8:(i + 1) * 8, j * 8:(j + 1) * 8]
             result = _doHuffmanEncoding(block, ZigZag, m_CbCrTable, m_CbCr_DC_Huffman_Table, m_CbCr_AC_Huffman_Table, result, prev_DC_Cb)
-            block = Cr_data[i:i+8, j:j+8]
+            block = Cr_data[i * 8:(i + 1) * 8, j * 8:(j + 1) * 8]
             result = _doHuffmanEncoding(block, ZigZag, m_CbCrTable, m_CbCr_DC_Huffman_Table, m_CbCr_AC_Huffman_Table, result, prev_DC_Cr)
     # 补足为8的整数倍，以便编码成16进制数据
     if len(result) % 8 != 0:
@@ -509,6 +509,10 @@ def decompress(img):
         for k in range(w // 16):
             _doHuffmanDecoding(m_CbCrTable, ZigZag, Reverse_CbCr_DC_Huffman_Table, Reverse_CbCr_AC_Huffman_Table, result, prev_DC_Cb, pos, Cb_data, j, k)
             _doHuffmanDecoding(m_CbCrTable, ZigZag, Reverse_CbCr_DC_Huffman_Table, Reverse_CbCr_AC_Huffman_Table, result, prev_DC_Cr, pos, Cr_data, j, k)
+    h,w=Cb_data.shape
+    h*=2
+    w*=2
+    Y_data=Y_data[:h,:w]
     temp=np.zeros((h, w),dtype=int)
     # 上采样Cb和Cr
     for i in range(h):
@@ -527,3 +531,51 @@ def decompress(img):
     img_data = img_data.astype(np.uint8)
     return img_data
 
+#huffman表需要修改
+def main():
+    # 原始图像路径,彩色图像
+    img_path = './sender_image/image.png'
+    # 读取原始图像
+    # 得到图像原数据流，注意opencv的颜色通道顺序为[B,G,R]
+    img_data = cv2.imread(img_path)[:,:,(2,1,0)]
+    #直接把原始图像存储起来，得到官方压缩的jpeg图像数据img0
+    cv2.imwrite('./jpeg_compress.jpg', img_data)
+    img0 = cv2.imread('./jpeg_compress.jpg', -1)
+    # 本文代码得到压缩后图像数据
+    img_compress = compress(img_data, 50)
+    # 存储压缩后的图像
+    img_compress_path = './img_compress.jpg'
+    with open(img_compress_path, 'wb') as f:
+        f.write(base64.b16decode(img_compress.upper()))
+    # jpeg图像解压缩测试
+    img_decompress = decompress(img_compress_path)
+    img1 = cv2.imread(img_compress_path)[:,:,(2,1,0)]
+    # 结果展示
+    # 子图1，原始图像
+    plt.subplot(141)
+    # imshow()对图像进行处理，画出图像，show()进行图像显示
+    plt.imshow(img_data, cmap=plt.cm.gray)
+    plt.title('Oringinal Image')
+    # 不显示坐标轴
+    plt.axis('off')
+    # 子图2，jpeg压缩后图像
+    plt.subplot(142)
+    plt.imshow(img1, cmap=plt.cm.gray)
+    plt.title('jpeg compressed image')
+    plt.axis('off')
+
+    # 子图3，自己写的jpeg压缩后解压的图像
+    plt.subplot(143)
+    plt.imshow(img_decompress, cmap=plt.cm.gray)
+    plt.title('my decompressed jpeg image')
+    plt.axis('off')
+
+    # 子图4，官方jpeg压缩后解码图像
+    plt.subplot(144)
+    plt.imshow(img0, cmap=plt.cm.gray)
+    plt.title('formal decompressed jpeg image')
+    plt.axis('off')
+
+    plt.show()
+if __name__ == '__main__':
+    main()
